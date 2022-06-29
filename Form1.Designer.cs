@@ -178,7 +178,7 @@
             // 
             // SendButton
             // 
-            this.SendButton.Location = new System.Drawing.Point(381, 587);
+            this.SendButton.Location = new System.Drawing.Point(381, 586);
             this.SendButton.Margin = new System.Windows.Forms.Padding(4);
             this.SendButton.Name = "SendButton";
             this.SendButton.Size = new System.Drawing.Size(77, 28);

@@ -565,7 +565,6 @@ namespace iMesej
                     Thread.Sleep(1000);
                     StatusText.BeginInvoke(new Action(() => StatusText.Text = "Disconnected"));
                     //ClientThread.Abort();
-
                     RefreshRateTimer.Enabled = false;
                     CreateRoomLabel.BeginInvoke(new Action(() => CreateRoomLabel.Enabled = true));
                     CreateRoomButton.BeginInvoke(new Action(() => CreateRoomButton.Enabled = true));
