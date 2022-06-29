@@ -58,9 +58,7 @@ namespace iMesej
         private void MessageBox_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
-            {
                 SendMessage();
-            }
         }
         private void ExportChatButton_Click(object sender, EventArgs e)
         {
@@ -152,6 +150,8 @@ namespace iMesej
         }
         private void ClientPort_KeyDown(object sender, KeyEventArgs e)
         {
+            if (ClientPort.Text.Length >= 4)
+                e.SuppressKeyPress = true;
             VerifyInput(e);
         }
         private void RefreshRateTimer_Tick(object sender, EventArgs e)
@@ -254,6 +254,8 @@ namespace iMesej
         }
         private void RoomPort_KeyDown(object sender, KeyEventArgs e)
         {
+            if (RoomPort.Text.Length >= 4)
+                e.SuppressKeyPress = true;
             VerifyInput(e);
         }
 
@@ -287,8 +289,8 @@ namespace iMesej
             int.TryParse(e.KeyValue.ToString(), out result);
             if ((result < 48 || result > 57) && e.KeyCode != Keys.NumPad0 && e.KeyCode != Keys.NumPad1 && e.KeyCode != Keys.NumPad2 && e.KeyCode != Keys.NumPad3 && e.KeyCode != Keys.NumPad4 && e.KeyCode != Keys.NumPad5 && e.KeyCode != Keys.NumPad6 && e.KeyCode != Keys.NumPad7 && e.KeyCode != Keys.NumPad8 && e.KeyCode != Keys.NumPad9)
                 e.SuppressKeyPress = true;
-            if (ClientPort.Text.Length >= 4 || RoomPort.Text.Length >= 4)
-                e.SuppressKeyPress = true;
+            /*if ((ClientPort.Text.Length > 4 && JoinRoomButtonState) || (RoomPort.Text.Length > 4 && CreateRoomButtonState))
+                e.SuppressKeyPress = true;*/
             /*else if ((ClientPort.Text.Length >= 4 || RoomPort.Text.Length >= 4) && (IsControlPressed && IsAPressed))
                 e.SuppressKeyPress = false;*/
             if ((IsControlPressed && e.KeyCode == Keys.A) || e.KeyCode == Keys.Back || e.KeyCode == Keys.Right || e.KeyCode == Keys.Left || e.KeyCode == Keys.Insert || e.KeyCode == Keys.Delete || e.KeyCode == Keys.Home || e.KeyCode == Keys.End)
@@ -541,7 +543,6 @@ namespace iMesej
             Console.WriteLine("listening to server");
             try
             {
-                
                 client = new TcpClient(ClientIP.Text, Int32.Parse(ClientPort.Text));
                 NetworkStream stream = client.GetStream();
                 Byte[] data = new Byte[256];
