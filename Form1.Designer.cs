@@ -51,6 +51,7 @@
             this.ClientPortLabel = new System.Windows.Forms.Label();
             this.RefreshRateTimer = new System.Windows.Forms.Timer(this.components);
             this.ClearChatButton = new System.Windows.Forms.Button();
+            this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.SuspendLayout();
             // 
             // CreateRoomLabel
@@ -134,6 +135,7 @@
             this.ClientIP.Size = new System.Drawing.Size(132, 22);
             this.ClientIP.TabIndex = 7;
             this.ClientIP.TextChanged += new System.EventHandler(this.ClientIP_TextChanged);
+            this.ClientIP.MouseHover += new System.EventHandler(this.ClientIP_MouseHover);
             // 
             // StatusLabel
             // 
@@ -196,6 +198,8 @@
             this.MessageField.Name = "MessageField";
             this.MessageField.Size = new System.Drawing.Size(443, 384);
             this.MessageField.TabIndex = 15;
+            this.MessageField.ControlAdded += new System.Windows.Forms.ControlEventHandler(this.MessageField_ControlAdded);
+            this.MessageField.ControlRemoved += new System.Windows.Forms.ControlEventHandler(this.MessageField_ControlRemoved);
             // 
             // createLobbyStatus
             // 
@@ -233,6 +237,7 @@
             this.ClientPort.TabIndex = 19;
             this.ClientPort.TextChanged += new System.EventHandler(this.ClientPort_TextChanged);
             this.ClientPort.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ClientPort_KeyDown);
+            this.ClientPort.MouseHover += new System.EventHandler(this.ClientPort_MouseHover);
             // 
             // ClientPortLabel
             // 
@@ -317,6 +322,7 @@
         private System.Windows.Forms.Label ClientPortLabel;
         private System.Windows.Forms.Timer RefreshRateTimer;
         private System.Windows.Forms.Button ClearChatButton;
+        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
     }
 }
 

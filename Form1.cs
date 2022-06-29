@@ -30,10 +30,10 @@ namespace iMesej
                 this.PortNumber = Int32.Parse(PortNumber);
             }
         }
-        int CurrentY = 0, TextOverflowPaddingY = 13, TimeOverflowPaddingY = 17;
-        const byte TextPadingY = 5, TextOverflowDefaultPaddingY = 13, TimeOverflowDefaultPaddingY = 17;
-        static bool CreateRoomButtonState = false, JoinRoomButtonState = false, FirstTime = true;
-        string ToRead, ToWrite, Side;
+        int CurrentY = 0;
+        const byte TextPadingY = 5;
+        static bool CreateRoomButtonState = false, JoinRoomButtonState = false; //FirstTime = true;
+        string ToRead, ToWrite;//Side;
         List<string> Messages = new List<string>();
         TcpClient client = null;
         TcpListener server = null;
@@ -50,6 +50,8 @@ namespace iMesej
             CreateRoomButton.Enabled = false;
             MessageBox.Enabled = false;
             SendButton.Enabled = false;
+            ExportChatButton.Enabled = false;
+            ClearChatButton.Enabled = false;
         }
         private void SendButton_Click(object sender, EventArgs e)
         {
@@ -62,23 +64,33 @@ namespace iMesej
         }
         private void ExportChatButton_Click(object sender, EventArgs e)
         {
+            FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
+            folderBrowserDialog.ShowDialog();
             string projectPath = Path.GetDirectoryName(Path.GetDirectoryName(Directory.GetCurrentDirectory()));
-            string fileName = "Chat log.txt";
-            string fullPath = projectPath + "\\" + fileName;
-            if (!File.Exists(fullPath))
-                File.Create(fullPath);
-            else
+            Console.WriteLine(folderBrowserDialog.SelectedPath);
+            if (folderBrowserDialog.SelectedPath.Length != 0)
             {
-                foreach (string message in Messages)
+                string fullPath = folderBrowserDialog.SelectedPath + "Chat log.log";
+                if (!File.Exists(fullPath))
+                    File.Create(fullPath);
+                else
                 {
-                    Console.Write("Writing {0}", message);
-                    using(System.IO.StreamWriter file = new System.IO.StreamWriter(fullPath, true))
+                    foreach (string message in Messages)
                     {
-                        file.WriteLine(message);
+                        Console.Write("Writing {0}", message);
+                        using (System.IO.StreamWriter file = new System.IO.StreamWriter(fullPath, true))
+                        {
+                            file.WriteLine(message);
+                        }
                     }
                 }
+                System.Windows.Forms.MessageBox.Show("Chat log has been exported to " + fullPath, "Export chat");
             }
-            System.Windows.Forms.MessageBox.Show("Chat log has been exported to " + projectPath, "Export chat");
+            else
+            {
+                Console.WriteLine("No path is selected");
+                return;
+            }
         }
         private void CreateRoomButton_Click(object sender, EventArgs e)
         {
@@ -171,20 +183,28 @@ namespace iMesej
         }
         private void ClientIP_TextChanged(object sender, EventArgs e)
         {
+            /*if (ClientIP.Text == "Server IP address")
+                ClientIP.Text = "";*/
             if (ClientIP.Text.Length != 0 && ClientPort.Text.Length != 0)
                 JoinRoomButton.Enabled = true;
             else
                 JoinRoomButton.Enabled = false;
+                
         }
         private void JoinRoomButton_Click(object sender, EventArgs e)
         {
             JoinRoomButtonState = !JoinRoomButtonState;
             if(JoinRoomButtonState)
             {
-                ClientRole = new Role("client", ClientIP.Text, ClientPort.Text);
                 RefreshRateTimer.Enabled = true;
                 try
                 {
+                    //new Thread(() => StatusText.BeginInvoke(new Action(() => StatusText.Text = "Connecting..."))).Start();
+                    //new Thread(() => StatusText.Text = "Connecting...");
+                    //StatusText.Text = "Connecting...";
+                    JoinRoomButton.Enabled = false;
+                    ClientRole = new Role("client", ClientIP.Text, ClientPort.Text);
+                    //new Thread(() => client = new TcpClient(ClientRole.LocalAddress.ToString(), ClientRole.PortNumber)).Start();
                     client = new TcpClient(ClientRole.LocalAddress.ToString(), ClientRole.PortNumber);
                 }
                 catch
@@ -196,7 +216,12 @@ namespace iMesej
                         StatusText.BeginInvoke(new Action(() => StatusText.Text = "Disconnected"));
                     }).Start();
                     JoinRoomButtonState = false;
+                    JoinRoomButton.Enabled = true;
                     return;
+                }
+                finally
+                {
+                    JoinRoomButton.Enabled = true;
                 }
                 CreateRoomLabel.Enabled = false;
                 CreateRoomButton.Enabled = false;
@@ -246,9 +271,7 @@ namespace iMesej
                 MessageField.Controls.Clear();
                 CurrentY = 0;
                 Messages.Clear();
-                TextOverflowPaddingY = TextOverflowDefaultPaddingY;
-                TimeOverflowPaddingY = TimeOverflowDefaultPaddingY;
-                FirstTime = true;
+                //FirstTime = true;
             }
         }
         private void ClientPort_TextChanged(object sender, EventArgs e)
@@ -257,15 +280,14 @@ namespace iMesej
                 JoinRoomButton.Enabled = true;
             else
                 JoinRoomButton.Enabled = false;
+                
         }
         void VerifyInput(KeyEventArgs e)
         {
-            bool IsControlPressed = false, IsAPressed = false;
+            bool IsControlPressed = false;
             int result;
             if (e.Modifiers == Keys.Control)
                 IsControlPressed = true;
-            if (e.KeyCode == Keys.A)
-                IsAPressed = true;
             int.TryParse(e.KeyValue.ToString(), out result);
             if ((result < 48 || result > 57) && e.KeyCode != Keys.NumPad0 && e.KeyCode != Keys.NumPad1 && e.KeyCode != Keys.NumPad2 && e.KeyCode != Keys.NumPad3 && e.KeyCode != Keys.NumPad4 && e.KeyCode != Keys.NumPad5 && e.KeyCode != Keys.NumPad6 && e.KeyCode != Keys.NumPad7 && e.KeyCode != Keys.NumPad8 && e.KeyCode != Keys.NumPad9)
                 e.SuppressKeyPress = true;
@@ -292,14 +314,14 @@ namespace iMesej
             if (MessageBox.Text.Trim().Length == 0) return;
             TextBubble(MessageBox.Text, "right", DateTime.Now.ToString("h.mm tt"));
             ToWrite = MessageBox.Text;
-            if(JoinRoomButtonState)
+            if (JoinRoomButtonState)
             {
                 new Thread(() =>
                 {
                     Client();
                 }).Start();
             }
-            else if (CreateRoomButtonState)
+            else if (CreateRoomButtonState && client != null)
             {
                 try
                 {
@@ -313,6 +335,7 @@ namespace iMesej
                 catch
                 {
                     Console.WriteLine("Failed to connect");
+                    return;
                 }
             }
             MessageBox.Text = string.Empty;
@@ -350,38 +373,38 @@ namespace iMesej
                 word = message.Split(' ');
                 foreach (string word2 in word)
                     MessageLength += word2.Length;
-                string tempMessage = null;
+                string TempMessage = null;
                 int i = 0;
-                bool firstLoop = true;
-                List<string> tempMessageList = new List<string>();
+                bool FirstLoop = true;
+                List<string> TempMessageList = new List<string>();
                 while (true)
                 {
                     if(i == word.Length-1)
                     {
-                        tempMessageList.Add(tempMessage);
+                        TempMessageList.Add(TempMessage);
                         break;
                     }
-                    if (firstLoop)
+                    if (FirstLoop)
                     {
-                        tempMessage = word[i];
-                        firstLoop = false;
+                        TempMessage = word[i];
+                        FirstLoop = false;
                     }
-                    if ((tempMessage + " " + word[i+1]).Length <= limit)
+                    if ((TempMessage + " " + word[i+1]).Length <= limit)
                     {
-                        tempMessage += " " + word[i + 1];
+                        TempMessage += " " + word[i + 1];
                         i++;
                     }
                     else
                     {
-                        tempMessageList.Add(tempMessage);
-                        tempMessage = null;
-                        firstLoop = true;
+                        TempMessageList.Add(TempMessage);
+                        TempMessage = null;
+                        FirstLoop = true;
                         i++;
                         continue;
                     }
                 }
                 message = null;
-                message += String.Join("\n", tempMessageList);
+                message += String.Join("\n", TempMessageList);
             }
             textBox.Text = message;
             Size textSize = TextRenderer.MeasureText(message, MessageBox.Font), timeSize = TextRenderer.MeasureText(time, MessageBox.Font);
@@ -391,72 +414,53 @@ namespace iMesej
             textBox.TextAlign = ContentAlignment.MiddleLeft;
             timeLabel.Width = timeSize.Width;
             timeLabel.Height = timeSize.Height;
-            Console.WriteLine("text font size: {0}, {1}", MessageBox.Font.Size, MessageBox.Font.SizeInPoints);
-            Console.WriteLine("field height: {0}", MessageField.Size.Height);
-            Console.WriteLine("expexted CurrentY: {0}", CurrentY + textBox.Height + TextPadingY + timeLabel.Height + timePaddingY);
-            Console.WriteLine("CurrentY: {0}", CurrentY);
-            Console.WriteLine("textBox height: {0}, {1}", textBox.Height, textBox.Size.Height);
-            Console.WriteLine(11 * (message.Count(f => f == '\n') + 1));
-            if (CurrentY + textBox.Height + TextPadingY + timeLabel.Height + timePaddingY >= MessageField.Size.Height)
+            if (side == "right")
             {
-                Console.WriteLine("triggered");
-                if (FirstTime)
-                {
-                    Console.WriteLine(FirstTime);
-                    TextOverflowPaddingY += 12;//satu line 12
-                    TimeOverflowPaddingY += -15;//satu line -15
-                    FirstTime = false;
-                }
-                else
-                {
-                    TextOverflowPaddingY = TextOverflowDefaultPaddingY;
-                    TimeOverflowPaddingY = TimeOverflowDefaultPaddingY;
-                }
-                if (side == "right")
-                {
-                    textBox.Location = new Point(MessageField.Size.Width - textSize.Width - 25, MessageField.Size.Height - TextOverflowPaddingY);
-                    textBox.BackColor = Color.PaleGreen;
-                    timeLabel.Location = new Point(MessageField.Size.Width - timeSize.Width - 15, MessageField.Size.Height - TimeOverflowPaddingY);
-                    timeLabel.TextAlign = ContentAlignment.MiddleRight;
-                }
-                else if (side == "left")
-                {
-                    textBox.Location = new Point(0, MessageField.Size.Height - TextOverflowPaddingY);
-                    textBox.BackColor = Color.LightBlue;
-                    timeLabel.Location = new Point(0, MessageField.Size.Height - TimeOverflowPaddingY);
-                    timeLabel.TextAlign = ContentAlignment.MiddleLeft;
-                }
+                textBox.Location = new Point(MessageField.Size.Width - textSize.Width - 25, MessageField.AutoScrollPosition.Y+CurrentY);
+                textBox.BackColor = Color.PaleGreen;
+                timeLabel.Location = new Point(MessageField.Size.Width - timeSize.Width - 15, MessageField.AutoScrollPosition.Y + CurrentY + textBox.Height + timePaddingY);
+                timeLabel.TextAlign = ContentAlignment.MiddleRight;
             }
-            else if (CurrentY < MessageField.Size.Height)
+            else if (side == "left")
             {
-                Console.WriteLine("sinsi");
-                if (side == "right")
-                {
-                    textBox.Location = new Point(MessageField.Size.Width - textSize.Width - 25, CurrentY);
-                    textBox.BackColor = Color.PaleGreen;
-                    timeLabel.Location = new Point(MessageField.Size.Width - timeSize.Width - 15, CurrentY + textBox.Height + timePaddingY);
-                    timeLabel.TextAlign = ContentAlignment.MiddleRight;
-                }
-                else if (side == "left")
-                {
-                    textBox.Location = new Point(0, CurrentY);
-                    textBox.BackColor = Color.LightBlue;
-                    timeLabel.Location = new Point(0, CurrentY + textBox.Height + timePaddingY);
-                    timeLabel.TextAlign = ContentAlignment.MiddleLeft;
-                }
+                textBox.Location = new Point(0, MessageField.AutoScrollPosition.Y + CurrentY);
+                textBox.BackColor = Color.LightBlue;
+                timeLabel.Location = new Point(0, MessageField.AutoScrollPosition.Y + CurrentY + textBox.Height + timePaddingY);
+                timeLabel.TextAlign = ContentAlignment.MiddleLeft;
             }
             CurrentY += textBox.Height + TextPadingY + timeLabel.Height + timePaddingY;
             if (CreateRoomButtonState || JoinRoomButtonState)
             {
-                new Thread(() =>
-                {
-                    MessageField.BeginInvoke(new Action(() => MessageField.AutoScrollPosition = new Point(0, MessageField.VerticalScroll.Maximum)));
-                    MessageField.BeginInvoke(new Action(() => MessageField.Controls.Add(textBox)));
-                    MessageField.BeginInvoke(new Action(() => MessageField.AutoScrollPosition = new Point(0, MessageField.VerticalScroll.Maximum)));
-                    MessageField.BeginInvoke(new Action(() => MessageField.Controls.Add(timeLabel)));
-                }).Start();
+                MessageField.BeginInvoke(new Action(() => MessageField.Controls.Add(textBox)));
+                MessageField.BeginInvoke(new Action(() => MessageField.Controls.Add(timeLabel)));
+                MessageField.BeginInvoke(new Action(() => MessageField.AutoScrollPosition = new Point(0, MessageField.VerticalScroll.Maximum)));
             }
         }
+
+        private void ClientIP_MouseHover(object sender, EventArgs e)
+        {
+            ToolTip toolTip = new ToolTip();
+            toolTip.SetToolTip(ClientIP, "Insert server IP address");
+        }
+
+        private void ClientPort_MouseHover(object sender, EventArgs e)
+        {
+            ToolTip toolTip = new ToolTip();
+            toolTip.SetToolTip(ClientPort, "Insert server port number");
+        }
+
+        private void MessageField_ControlRemoved(object sender, ControlEventArgs e)
+        {
+            ExportChatButton.Enabled = false;
+            ClearChatButton.Enabled = false;
+        }
+
+        private void MessageField_ControlAdded(object sender, ControlEventArgs e)
+        {
+            ExportChatButton.Enabled = true;
+            ClearChatButton.Enabled = true;
+        }
+
         /////////////////////////////////////////////////////////////server//////////////////////////////////////////////////////////////////////
         void Server()
         {
@@ -483,7 +487,7 @@ namespace iMesej
             }
             catch
             {
-                FirstTime = true;
+                //FirstTime = true;
                 if (client != null)
                     client.Close();
                 Console.WriteLine("Connection failed");
@@ -505,7 +509,7 @@ namespace iMesej
                 if (ToRead.Length != 0)
                     new Thread(() => TextBubble(ToRead, "left", DateTime.Now.ToString("h.mm tt"))).Start();
                 stream.Close();
-                client.Close();
+                //client.Close();
             }
             catch
             {
