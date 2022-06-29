@@ -65,7 +65,6 @@ namespace iMesej
             string projectPath = Path.GetDirectoryName(Path.GetDirectoryName(Directory.GetCurrentDirectory()));
             string fileName = "Chat log.txt";
             string fullPath = projectPath + "\\" + fileName;
-            //Console.WriteLine(projectPath);
             if (!File.Exists(fullPath))
                 File.Create(fullPath);
             else
@@ -227,7 +226,6 @@ namespace iMesej
                 client.Close();
                 ClientThread.IsBackground = false;
                 ClientThread.Abort();
-                Console.WriteLine("ClientThread aborted");
                 JoinRoomButton.Text = "Join";
                 StatusText.Text = "Disonnected";
                 StatusText.ForeColor = Color.Red;
@@ -241,7 +239,6 @@ namespace iMesej
                 e.SuppressKeyPress = true;
             VerifyInput(e);
         }
-
         private void ClearChatButton_Click(object sender, EventArgs e)
         {
             if (System.Windows.Forms.MessageBox.Show("Are you sure you want to clear chat history?", "Yes", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
@@ -345,7 +342,7 @@ namespace iMesej
             timeLabel.Font = new Font("Microsoft Sans Serif", 5);
             timeLabel.ForeColor = Color.Black;
             timeLabel.BackColor = Color.Transparent;
-            int MessageLength=0, limit = 45;
+            int MessageLength = 0, limit = 45;
             string[] word = null;
             if (message.Length > limit)
             {
@@ -522,7 +519,10 @@ namespace iMesej
                     Thread.Sleep(1000);
                     StatusText.BeginInvoke(new Action(() => StatusText.Text = "Disconnected"));
 <<<<<<< HEAD
+<<<<<<< HEAD
                     //ClientThread.Abort();
+=======
+>>>>>>> git commit --allow-empty -m "Empty-Commit"
 =======
 >>>>>>> git commit --allow-empty -m "Empty-Commit"
                     RefreshRateTimer.Enabled = false;
