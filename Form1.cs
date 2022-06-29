@@ -88,9 +88,6 @@ namespace iMesej
             {
                 ServerRole = new Role("server", RoomPort.Text);
                 RefreshRateTimer.Enabled = true;
-                //IPAddress LocalAddress = IPAddress.Parse(Dns.GetHostByName(Dns.GetHostName()).AddressList[0].ToString());
-                //Int32 PortNumber = Int32.Parse(roomPort.Text);
-                //IPAddress LocalAddress = IPAddress.Any;
                 try
                 {
                     server = new TcpListener(ServerRole.LocalAddress, ServerRole.PortNumber);
@@ -108,7 +105,6 @@ namespace iMesej
                     CreateRoomButtonState = false;
                     return;
                 }
-                //change GUI
                 CreateRoomButton.Text = "Shutdown";
                 RoomPort.ReadOnly = true;
                 JoinRoomLabel.Enabled = false;
@@ -122,7 +118,6 @@ namespace iMesej
                 StatusText.ForeColor = Color.Green;
                 MessageBox.Enabled = true;
                 SendButton.Enabled = true;
-                //Side = ServerRole.Side;
             }
             else
             {
@@ -132,7 +127,6 @@ namespace iMesej
                 server.Stop();
                 ServerThread.IsBackground = false;
                 ServerThread.Abort();
-                //change GUI
                 CreateRoomButton.Text = "Create";
                 RoomPort.ReadOnly = false;
                 JoinRoomLabel.Enabled = true;
@@ -158,25 +152,15 @@ namespace iMesej
         {
             if(CreateRoomButtonState)
             {
-                //Console.WriteLine("triggering server");
-                /*new Thread(() =>
-                {
-                    Server();
-                }).Start();*/
                 ServerThread = new Thread(Server);
                 ServerThread.IsBackground = true;
                 ServerThread.Start();
             }
             if(JoinRoomButtonState)
             {
-                /*new Thread(() =>
-                {
-                    ListenToServer();
-                }).Start();*/
                 ClientThread = new Thread(ListenToServer);
                 ClientThread.IsBackground = true;
                 ClientThread.Start();
-                //Console.WriteLine("ClientThread started");
             }
         }
         private void RoomPort_TextChanged(object sender, EventArgs e)
@@ -228,7 +212,6 @@ namespace iMesej
                 StatusText.ForeColor = Color.Green;
                 MessageBox.Enabled = true;
                 SendButton.Enabled = true;
-                //Side = ClientRole.Side;
             }
             else
             {
@@ -281,18 +264,14 @@ namespace iMesej
         void VerifyInput(KeyEventArgs e)
         {
             bool IsControlPressed = false, IsAPressed = false;
+            int result;
             if (e.Modifiers == Keys.Control)
                 IsControlPressed = true;
             if (e.KeyCode == Keys.A)
                 IsAPressed = true;
-            int result;
             int.TryParse(e.KeyValue.ToString(), out result);
             if ((result < 48 || result > 57) && e.KeyCode != Keys.NumPad0 && e.KeyCode != Keys.NumPad1 && e.KeyCode != Keys.NumPad2 && e.KeyCode != Keys.NumPad3 && e.KeyCode != Keys.NumPad4 && e.KeyCode != Keys.NumPad5 && e.KeyCode != Keys.NumPad6 && e.KeyCode != Keys.NumPad7 && e.KeyCode != Keys.NumPad8 && e.KeyCode != Keys.NumPad9)
                 e.SuppressKeyPress = true;
-            /*if ((ClientPort.Text.Length > 4 && JoinRoomButtonState) || (RoomPort.Text.Length > 4 && CreateRoomButtonState))
-                e.SuppressKeyPress = true;*/
-            /*else if ((ClientPort.Text.Length >= 4 || RoomPort.Text.Length >= 4) && (IsControlPressed && IsAPressed))
-                e.SuppressKeyPress = false;*/
             if ((IsControlPressed && e.KeyCode == Keys.A) || e.KeyCode == Keys.Back || e.KeyCode == Keys.Right || e.KeyCode == Keys.Left || e.KeyCode == Keys.Insert || e.KeyCode == Keys.Delete || e.KeyCode == Keys.Home || e.KeyCode == Keys.End)
                 e.SuppressKeyPress = false;
         }
@@ -323,7 +302,7 @@ namespace iMesej
                     Client();
                 }).Start();
             }
-            else if (CreateRoomButtonState)//////////////////////////////////////////
+            else if (CreateRoomButtonState)
             {
                 try
                 {
@@ -378,7 +357,6 @@ namespace iMesej
                 int i = 0;
                 bool firstLoop = true;
                 List<string> tempMessageList = new List<string>();
-                //Console.WriteLine(message);
                 while (true)
                 {
                     if(i == word.Length-1)
@@ -422,14 +400,14 @@ namespace iMesej
             Console.WriteLine("CurrentY: {0}", CurrentY);
             Console.WriteLine("textBox height: {0}, {1}", textBox.Height, textBox.Size.Height);
             Console.WriteLine(11 * (message.Count(f => f == '\n') + 1));
-            if (/*CurrentY >= messageField.Size.Height || */CurrentY + textBox.Height + TextPadingY + timeLabel.Height + timePaddingY >= MessageField.Size.Height)
+            if (CurrentY + textBox.Height + TextPadingY + timeLabel.Height + timePaddingY >= MessageField.Size.Height)
             {
                 Console.WriteLine("triggered");
                 if (FirstTime)
                 {
                     Console.WriteLine(FirstTime);
-                    TextOverflowPaddingY += 0/*11 * (message.Count(f => f == '\n') + 1)*/;//satu line 12
-                    TimeOverflowPaddingY += 0/*-15*/;//satu line -15
+                    TextOverflowPaddingY += 12;//satu line 12
+                    TimeOverflowPaddingY += -15;//satu line -15
                     FirstTime = false;
                 }
                 else
@@ -475,46 +453,25 @@ namespace iMesej
             {
                 new Thread(() =>
                 {
-                    //Console.WriteLine("Adding to text bubble");
-                    //if(FirstTime)
-                        //messageField.BeginInvoke(new Action(() => messageField.AutoScrollPosition = new Point(0, messageField.VerticalScroll.Maximum)));
                     MessageField.BeginInvoke(new Action(() => MessageField.AutoScrollPosition = new Point(0, MessageField.VerticalScroll.Maximum)));
                     MessageField.BeginInvoke(new Action(() => MessageField.Controls.Add(textBox)));
                     MessageField.BeginInvoke(new Action(() => MessageField.AutoScrollPosition = new Point(0, MessageField.VerticalScroll.Maximum)));
                     MessageField.BeginInvoke(new Action(() => MessageField.Controls.Add(timeLabel)));
                 }).Start();
             }
-            /*else if()
-            {
-                messageField.AutoScrollPosition = new Point(0, messageField.VerticalScroll.Maximum);
-                messageField.Controls.Add(textBox);
-            }*/
         }
         /////////////////////////////////////////////////////////////server//////////////////////////////////////////////////////////////////////
         void Server()
         {
-            //Byte[] data = new Byte[256];
             Byte[] bytes = new Byte[256];
             ToRead = null;
             try
             {
-                /*if(FirstTime)
-                {
-                    client = server.AcceptTcpClient();
-                    FirstTime = false;
-                }*/
                 int i;
                 client = server.AcceptTcpClient();
-                //Console.WriteLine("Connected");
-                //client.ReceiveTimeout=5000;
                 NetworkStream stream = client.GetStream();
-                //stream.ReadTimeout = 10000;
                 while ((i = stream.Read(bytes, 0, bytes.Length)) != 0)
-                {
                     ToRead = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
-                }
-                //data = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
-                //Int32 bytes = stream.Read(data, 0, data.Length);
                 Console.WriteLine("Received {0}", ToRead);
                 if (ToRead != null)
                 {
@@ -564,7 +521,10 @@ namespace iMesej
                     StatusText.BeginInvoke(new Action(() => StatusText.ForeColor = Color.Red));
                     Thread.Sleep(1000);
                     StatusText.BeginInvoke(new Action(() => StatusText.Text = "Disconnected"));
+<<<<<<< HEAD
                     //ClientThread.Abort();
+=======
+>>>>>>> git commit --allow-empty -m "Empty-Commit"
                     RefreshRateTimer.Enabled = false;
                     CreateRoomLabel.BeginInvoke(new Action(() => CreateRoomLabel.Enabled = true));
                     CreateRoomButton.BeginInvoke(new Action(() => CreateRoomButton.Enabled = true));
@@ -584,30 +544,13 @@ namespace iMesej
                     SendButton.BeginInvoke(new Action(() => SendButton.Enabled = false));
                     JoinRoomButtonState = false;
                     return;
-                    //joinRoomButton.BeginInvoke(new Action(() => joinRoomButton.PerformClick()));
                 }
-                //
-                //
-                //stream.Close();
-                /*new Thread(() =>
-                {
-                    try
-                    {
-                        statusText.BeginInvoke(new Action(() => statusText.Text = "Connection lost"));
-                        statusText.BeginInvoke(new Action(() => statusText.ForeColor = Color.Red));
-                        Thread.Sleep(1000);
-                        statusText.BeginInvoke(new Action(() => statusText.Text = "Disconnected"));
-                        joinRoomButton.BeginInvoke(new Action(() => joinRoomButton.PerformClick()));
-                    }
-                    catch { }
-                }).Start();*/
             }
         }
         void Client()
         {
             try
             {
-                //TcpClient client = new TcpClient(clientIP.Text, Int32.Parse(clientPort.Text));
                 TcpClient client = new TcpClient(ClientIP.Text, Int32.Parse(ClientPort.Text));
                 NetworkStream stream = client.GetStream();
                 Byte[] data = System.Text.Encoding.ASCII.GetBytes(ToWrite);
@@ -620,7 +563,6 @@ namespace iMesej
             {
                 Console.WriteLine("Failed to connect to server");
                 client.Close();
-                //stream.Close();
                 new Thread(() => JoinRoomButton.BeginInvoke(new Action(() => JoinRoomButton.PerformClick()))).Start();
             }
         }
