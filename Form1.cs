@@ -518,13 +518,6 @@ namespace iMesej
                     StatusText.BeginInvoke(new Action(() => StatusText.ForeColor = Color.Red));
                     Thread.Sleep(1000);
                     StatusText.BeginInvoke(new Action(() => StatusText.Text = "Disconnected"));
-<<<<<<< HEAD
-<<<<<<< HEAD
-                    //ClientThread.Abort();
-=======
->>>>>>> git commit --allow-empty -m "Empty-Commit"
-=======
->>>>>>> git commit --allow-empty -m "Empty-Commit"
                     RefreshRateTimer.Enabled = false;
                     CreateRoomLabel.BeginInvoke(new Action(() => CreateRoomLabel.Enabled = true));
                     CreateRoomButton.BeginInvoke(new Action(() => CreateRoomButton.Enabled = true));
