@@ -494,7 +494,6 @@ namespace iMesej
         /// </summary>
         void ListenToServer()
         {
-            Console.WriteLine("listening to server");
             try
             {
                 client = new TcpClient(ClientIP.Text, Int32.Parse(ClientPort.Text));
