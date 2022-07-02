@@ -145,7 +145,6 @@ namespace iMesej
                 ClientPortLabel.Enabled = true;
                 ClientIP.Enabled = true;
                 ClientPort.Enabled = true;
-                JoinRoomButton.Enabled = true;
                 RoomIP.Text = string.Empty;
                 StatusText.Text = "Disconnected";
                 StatusText.ForeColor = Color.Red;
@@ -459,6 +458,24 @@ namespace iMesej
         {
             ExportChatButton.Enabled = true;
             ClearChatButton.Enabled = true;
+        }
+
+        private void ClientPort_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+                JoinRoomButton.PerformClick();
+        }
+
+        private void ClientIP_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+                JoinRoomButton.PerformClick();
+        }
+
+        private void RoomPort_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+                CreateRoomButton.PerformClick();
         }
         /////////////////////////////////////////////////////////////server//////////////////////////////////////////////////////////////////////
         void Server()

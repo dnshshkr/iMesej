@@ -135,6 +135,7 @@
             this.ClientIP.Size = new System.Drawing.Size(132, 22);
             this.ClientIP.TabIndex = 7;
             this.ClientIP.TextChanged += new System.EventHandler(this.ClientIP_TextChanged);
+            this.ClientIP.KeyUp += new System.Windows.Forms.KeyEventHandler(this.ClientIP_KeyUp);
             this.ClientIP.MouseHover += new System.EventHandler(this.ClientIP_MouseHover);
             // 
             // StatusLabel
@@ -218,6 +219,7 @@
             this.RoomPort.TabIndex = 17;
             this.RoomPort.TextChanged += new System.EventHandler(this.RoomPort_TextChanged);
             this.RoomPort.KeyDown += new System.Windows.Forms.KeyEventHandler(this.RoomPort_KeyDown);
+            this.RoomPort.KeyUp += new System.Windows.Forms.KeyEventHandler(this.RoomPort_KeyUp);
             // 
             // RoomPortLabel
             // 
@@ -237,6 +239,7 @@
             this.ClientPort.TabIndex = 19;
             this.ClientPort.TextChanged += new System.EventHandler(this.ClientPort_TextChanged);
             this.ClientPort.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ClientPort_KeyDown);
+            this.ClientPort.KeyUp += new System.Windows.Forms.KeyEventHandler(this.ClientPort_KeyUp);
             this.ClientPort.MouseHover += new System.EventHandler(this.ClientPort_MouseHover);
             // 
             // ClientPortLabel
