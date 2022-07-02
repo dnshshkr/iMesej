@@ -459,6 +459,26 @@ namespace iMesej
         {
             ExportChatButton.Enabled = true;
             ClearChatButton.Enabled = true;
+                }
+                else if (side == "left")
+                {
+                    textBox.Location = new Point(0, CurrentY);
+                    textBox.BackColor = Color.LightBlue;
+                    timeLabel.Location = new Point(0, CurrentY + textBox.Height + timePaddingY);
+                    timeLabel.TextAlign = ContentAlignment.MiddleLeft;
+                }
+            }
+            CurrentY += textBox.Height + TextPadingY + timeLabel.Height + timePaddingY;
+            if (CreateRoomButtonState || JoinRoomButtonState)
+            {
+                new Thread(() =>
+                {
+                    MessageField.BeginInvoke(new Action(() => MessageField.AutoScrollPosition = new Point(0, MessageField.VerticalScroll.Maximum)));
+                    MessageField.BeginInvoke(new Action(() => MessageField.Controls.Add(textBox)));
+                    MessageField.BeginInvoke(new Action(() => MessageField.AutoScrollPosition = new Point(0, MessageField.VerticalScroll.Maximum)));
+                    MessageField.BeginInvoke(new Action(() => MessageField.Controls.Add(timeLabel)));
+                }).Start();
+            }
         }
 
         /////////////////////////////////////////////////////////////server//////////////////////////////////////////////////////////////////////
