@@ -418,7 +418,7 @@ namespace iMesej
             {
                 textBox.Location = new Point(MessageField.Size.Width - textBox.Width - 15, MessageField.AutoScrollPosition.Y+CurrentY);
                 textBox.BackColor = Color.PaleGreen;
-                timeLabel.Location = new Point(MessageField.Size.Width - timeSize.Width - 15, MessageField.AutoScrollPosition.Y + CurrentY + textBox.Height + timePaddingY);
+                timeLabel.Location = new Point(MessageField.Size.Width - timeLabel.Width - 15, MessageField.AutoScrollPosition.Y + CurrentY + textBox.Height + timePaddingY);
                 timeLabel.TextAlign = ContentAlignment.MiddleRight;
             }
             else if (side == "left")
